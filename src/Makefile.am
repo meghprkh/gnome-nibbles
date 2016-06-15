@@ -30,6 +30,7 @@ gnome_nibbles_VALAFLAGS = \
 	--pkg clutter-1.0 \
 	--pkg clutter-gtk-1.0 \
 	--pkg libcanberra \
+	--pkg LibGamepad \
 	--pkg libcanberra-gtk \
 	--pkg libgames-support-1.0 \
 	--pkg gee-0.8 \

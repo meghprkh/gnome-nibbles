@@ -124,9 +124,12 @@ public class Nibbles : Gtk.Application
         return -1;
     }
 
+    private LibGamepad.GamepadMonitor gm;
+    private LibGamepad.Gamepad g;
     protected override void startup ()
     {
         base.startup ();
+
 
         unowned string[]? argv = null;
         GtkClutter.init (ref argv);
@@ -198,6 +201,18 @@ public class Nibbles : Gtk.Application
         window.set_titlebar (headerbar);
 
         add_window (window);
+
+        gm = new LibGamepad.GamepadMonitor ();
+        g = new LibGamepad.Gamepad ();
+        gm.on_plugin.connect ((guid, name) => {
+            print (@"GM Plugged in $(guid.to_string ()) - $name\n");
+            g.open (guid);
+        });
+        gm.foreach_gamepad ((guid, name) => {
+            print (@"Initial plugged in $guid - $name\n");
+            g.open (guid);
+        });
+        g.button_event.connect (gamepad_button_press_event_cb);
 
         /* Create game */
         game = new NibblesGame (settings);
@@ -301,6 +316,28 @@ public class Nibbles : Gtk.Application
     private bool key_press_event_cb (Gtk.Widget widget, Gdk.EventKey event)
     {
         return game.handle_keypress (event.keyval);
+    }
+
+    private void gamepad_button_press_event_cb (LibGamepad.StandardGamepadButton but, bool value)
+    {
+        if (but > LibGamepad.StandardGamepadButton.DPAD_RIGHT || but < LibGamepad.StandardGamepadButton.DPAD_UP)
+            return;
+        if (value == true) {
+            uint keyval;
+            switch (but) {
+                case LibGamepad.StandardGamepadButton.DPAD_UP:
+                    keyval = Gdk.keyval_from_name ("Up"); break;
+                case LibGamepad.StandardGamepadButton.DPAD_DOWN:
+                    keyval = Gdk.keyval_from_name ("Down"); break;
+                case LibGamepad.StandardGamepadButton.DPAD_LEFT:
+                    keyval = Gdk.keyval_from_name ("Left"); break;
+                case LibGamepad.StandardGamepadButton.DPAD_RIGHT:
+                    keyval = Gdk.keyval_from_name ("Right"); break;
+                default:
+                    keyval = 0; break;
+            }
+            game.handle_keypress (keyval);
+        }
     }
 
     private void size_allocate_cb (Gtk.Allocation allocation)

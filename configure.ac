@@ -39,6 +39,7 @@ PKG_CHECK_MODULES(GNOME_NIBBLES, [
   gtk+-3.0 >= $GTK_REQUIRED
   libcanberra-gtk3 >= $CANBERRA_GTK_REQUIRED
   libgames-support-1.0
+  LibGamepad
 ])
 
 AC_SUBST([GLIB_REQUIRED])
